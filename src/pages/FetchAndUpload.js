@@ -11,6 +11,9 @@ const FetchAndUpload = () => {
     const [errors, setErrors] = useState({})
     const [isAuthenticated, setIsAuthenticated] = useState(null)
     const [authUrl, setAuthUrl] = useState('')
+    const [detectedDocs, setDetectedDocs] = useState(0)
+    const [excelDocs, setExcelDocs] = useState(0)
+    const [fileDetails, setFileDetails] = useState({})
     const location = useLocation() // Use location to access query params
 
     useEffect(() => {
@@ -62,16 +65,30 @@ const FetchAndUpload = () => {
 
         setIsLoading(true)
         setStatus('Fetching files...')
+        setDetectedDocs(0)
+        setExcelDocs(0)
+        setFileDetails({})
 
         try {
             const fetchResponse = await fetchEmails(Number(senderId), date)
 
             if (fetchResponse.success) {
-                setStatus(fetchResponse.message)
                 const { mainFolderName, fetchedFiles } = fetchResponse
-                console.log('Fetched Files:', fetchedFiles)
+                setDetectedDocs(fetchResponse.messages.length)
+                setExcelDocs(fetchedFiles.length)
 
-                setStatus('Uploading files...')
+                // Organize filenames by folder name (city)
+                const filesByFolder = fetchedFiles.reduce((acc, file) => {
+                    const folder = file.city || 'city_undefined'
+                    if (!acc[folder]) acc[folder] = []
+                    acc[folder].push(file.filename)
+                    return acc
+                }, {})
+
+                setFileDetails(filesByFolder)
+                setStatus('Files fetched. Uploading files...')
+
+                // Upload files to Google Drive
                 const uploadResponse = await uploadFiles(mainFolderName, folderId)
 
                 if (uploadResponse.success) {
@@ -137,7 +154,31 @@ const FetchAndUpload = () => {
                     {isLoading ? 'Processing...' : 'Fetch and Upload'}
                 </button>
             </form>
+
             {status && <p className={isLoading ? 'loading' : 'status'}>{status}</p>}
+
+            {/* Display details of fetched files */}
+            {detectedDocs > 0 && (
+                <div>
+                    <h3>Detected Files</h3>
+                    <p>Total Emails: {detectedDocs}</p>
+                    <p>Total Excel Documents: {excelDocs}</p>
+
+                    {/* Wrap the files section with a scrollable div */}
+                    <div className="file-list">
+                        {Object.entries(fileDetails).map(([folder, files]) => (
+                            <div key={folder}>
+                                <h4>Folder: {folder}</h4>
+                                <ul>
+                                    {files.map((filename, index) => (
+                                        <li key={index}>{filename}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

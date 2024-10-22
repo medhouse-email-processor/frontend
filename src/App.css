@@ -150,3 +150,13 @@ button:active {
 h1 {
     text-align: center;
 }
+
+/* Scrollable File List Styles */
+.file-list {
+    max-height: 400px; /* Adjust height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ccc; /* Optional: add a border */
+    padding: 10px; /* Optional: add some padding */
+    border-radius: 4px; /* Optional: round the corners */
+    background-color: #fff; /* Ensure background matches */
+}
