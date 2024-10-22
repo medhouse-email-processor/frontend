@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { fetchEmails, uploadFiles } from '../services/api'
+import React, { useState, useEffect } from 'react'
+import { fetchEmails, uploadFiles, checkGoogleAuth } from '../services/api'
+import { useLocation } from 'react-router-dom'
 
 const FetchAndUpload = () => {
     const [senderId, setSenderId] = useState('')
@@ -8,22 +9,46 @@ const FetchAndUpload = () => {
     const [status, setStatus] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState({})
+    const [isAuthenticated, setIsAuthenticated] = useState(null)
+    const [authUrl, setAuthUrl] = useState('')
+    const location = useLocation() // Use location to access query params
+
+    useEffect(() => {
+        const checkAuthStatus = async () => {
+            try {
+                const searchParams = new URLSearchParams(location.search)
+                const authSuccess = searchParams.get('authSuccess')
+
+                if (authSuccess) {
+                    setIsAuthenticated(true)
+                } else {
+                    const response = await checkGoogleAuth()
+                    if (response.authenticated) {
+                        setIsAuthenticated(true)
+                    } else {
+                        setIsAuthenticated(false)
+                        setAuthUrl(response.authUrl)
+                    }
+                }
+            } catch (error) {
+                setStatus('Error checking Google authentication: ' + error.message)
+            }
+        }
+
+        checkAuthStatus()
+    }, [location])
 
     const validateForm = () => {
         const newErrors = {}
-
         if (!senderId || isNaN(Number(senderId))) {
             newErrors.senderId = 'Sender ID must be a valid number.'
         }
-
         if (!date) {
             newErrors.date = 'Please select a valid date.'
         }
-
         if (!folderId) {
             newErrors.folderId = 'Google Drive Folder ID is required.'
         }
-
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -62,6 +87,19 @@ const FetchAndUpload = () => {
         } finally {
             setIsLoading(false)
         }
+    }
+
+    if (isAuthenticated === null) {
+        return <p>Checking Google authentication...</p>
+    }
+
+    if (isAuthenticated === false) {
+        return (
+            <div>
+                <h2>You need to authenticate with Google to upload files.</h2>
+                <a href={authUrl}>Authenticate with Google</a>
+            </div>
+        )
     }
 
     return (
