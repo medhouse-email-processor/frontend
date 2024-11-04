@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { fetchEmails, uploadFiles, checkGoogleAuth } from '../services/api'
+import { fetchEmails, uploadFiles, checkGoogleAuth, baseURL, getSenders } from '../services/api'
 import { useLocation } from 'react-router-dom'
 
 const FetchAndUpload = () => {
@@ -14,7 +14,9 @@ const FetchAndUpload = () => {
     const [detectedDocs, setDetectedDocs] = useState(0)
     const [excelDocs, setExcelDocs] = useState(0)
     const [fileDetails, setFileDetails] = useState({})
-    const location = useLocation() // Use location to access query params
+    const [senders, setSenders] = useState([]) // State for sender list
+    const location = useLocation()
+    const [downloadUrl, setDownloadUrl] = useState('')
 
     useEffect(() => {
         const checkAuthStatus = async () => {
@@ -39,12 +41,24 @@ const FetchAndUpload = () => {
         }
 
         checkAuthStatus()
+
+        // Fetch senders list on component mount
+        const fetchSenders = async () => {
+            try {
+                const response = await getSenders()
+                setSenders(response)
+            } catch (error) {
+                console.error('Error fetching senders:', error)
+            }
+        }
+
+        fetchSenders()
     }, [location])
 
     const validateForm = () => {
         const newErrors = {}
-        if (!senderId || isNaN(Number(senderId))) {
-            newErrors.senderId = 'Sender ID must be a valid number.'
+        if (!senderId) {
+            newErrors.senderId = 'Please select a valid sender.'
         }
         if (!date) {
             newErrors.date = 'Please select a valid date.'
@@ -59,9 +73,7 @@ const FetchAndUpload = () => {
     const handleFetchAndUpload = async (e) => {
         e.preventDefault()
 
-        if (!validateForm()) {
-            return
-        }
+        if (!validateForm()) return
 
         setIsLoading(true)
         setStatus('Fetching files...')
@@ -70,14 +82,15 @@ const FetchAndUpload = () => {
         setFileDetails({})
 
         try {
-            const fetchResponse = await fetchEmails(Number(senderId), date)
+            const fetchResponse = await fetchEmails(Number(senderId), date, true)
+            console.log(fetchResponse)
 
             if (fetchResponse.success) {
-                const { mainFolderName, fetchedFiles } = fetchResponse
+                const { mainFolderName, fetchedFiles, downloadUrl } = fetchResponse
                 setDetectedDocs(fetchResponse.messages.length)
                 setExcelDocs(fetchedFiles.length)
+                setDownloadUrl(downloadUrl || '')
 
-                // Organize filenames by folder name (city)
                 const filesByFolder = fetchedFiles.reduce((acc, file) => {
                     const folder = file.city || 'city_undefined'
                     if (!acc[folder]) acc[folder] = []
@@ -88,19 +101,13 @@ const FetchAndUpload = () => {
                 setFileDetails(filesByFolder)
                 setStatus('Files fetched. Uploading files...')
 
-                // Upload files to Google Drive
                 const uploadResponse = await uploadFiles(mainFolderName, folderId)
-
-                if (uploadResponse.success) {
-                    setStatus('Files uploaded successfully!')
-                } else {
-                    setStatus('Error uploading files: ' + uploadResponse.message)
-                }
+                setStatus(uploadResponse.success ? 'Files uploaded successfully!' : uploadResponse.message)
             } else {
-                setStatus('Error fetching files: ' + fetchResponse.message)
+                setStatus(`Error fetching files: ${fetchResponse.message}`)
             }
         } catch (error) {
-            setStatus('An error occurred: ' + error.message)
+            setStatus(`An error occurred: ${error.message}`)
         } finally {
             setIsLoading(false)
         }
@@ -124,12 +131,18 @@ const FetchAndUpload = () => {
             <h1>Fetch and Upload Files</h1>
             <form onSubmit={handleFetchAndUpload}>
                 <div>
-                    <label>Sender ID:</label>
-                    <input
-                        type="number"
+                    <label>Sender:</label>
+                    <select
                         value={senderId}
                         onChange={(e) => setSenderId(e.target.value)}
-                    />
+                    >
+                        <option value="">Select a sender</option>
+                        {senders.map((sender) => (
+                            <option key={sender.id} value={sender.id}>
+                                {sender.companyName} ({sender.email})
+                            </option>
+                        ))}
+                    </select>
                     {errors.senderId && <p className="error">{errors.senderId}</p>}
                 </div>
                 <div>
@@ -177,6 +190,16 @@ const FetchAndUpload = () => {
                             </div>
                         ))}
                     </div>
+                </div>
+            )}
+            
+            {/* Conditionally render download button only if there are no errors */}
+            {downloadUrl && Object.keys(errors).length === 0 && (
+                <div>
+                    <h3>Download Zip Archive</h3>
+                    <a href={`${baseURL}/${downloadUrl}`} download>
+                        Click here to download
+                    </a>
                 </div>
             )}
         </div>

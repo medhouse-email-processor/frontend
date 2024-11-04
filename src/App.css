@@ -73,7 +73,9 @@ label {
     color: #333;
 }
 
-input {
+/* Input and Dropdown Styles */
+input,
+select {
     width: calc(100% - 20px);
     padding: 10px;
     border-radius: 4px;
@@ -82,11 +84,13 @@ input {
     transition: border-color 0.3s;
 }
 
-input:focus {
+input:focus,
+select:focus {
     border-color: #007bff;
     outline: none;
 }
 
+/* Button Styles */
 button {
     width: 100%;
     background-color: #28a745;
@@ -112,7 +116,8 @@ button:active {
         padding: 15px;
     }
 
-    input {
+    input,
+    select {
         padding: 8px;
     }
 
@@ -140,6 +145,9 @@ button:active {
 .error {
     color: red;
     background-color: #ffe0e0;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 5px;
 }
 
 .success {
@@ -147,16 +155,17 @@ button:active {
     background-color: #e0ffe0;
 }
 
+/* Heading Styles */
 h1 {
     text-align: center;
 }
 
 /* Scrollable File List Styles */
 .file-list {
-    max-height: 400px; /* Adjust height as needed */
-    overflow-y: auto; /* Enable vertical scrolling */
-    border: 1px solid #ccc; /* Optional: add a border */
-    padding: 10px; /* Optional: add some padding */
-    border-radius: 4px; /* Optional: round the corners */
-    background-color: #fff; /* Ensure background matches */
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #fff;
 }
