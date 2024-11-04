@@ -1,6 +1,6 @@
+// src/pages/FetchAndUpload.js
 import React, { useState, useEffect } from 'react'
-import { fetchEmails, uploadFiles, checkGoogleAuth, baseURL, getSenders } from '../services/api'
-import { useLocation } from 'react-router-dom'
+import { fetchEmails, uploadFiles, baseURL, getSenders } from '../services/api'
 
 const FetchAndUpload = () => {
     const [senderId, setSenderId] = useState('')
@@ -9,41 +9,14 @@ const FetchAndUpload = () => {
     const [status, setStatus] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState({})
-    const [isAuthenticated, setIsAuthenticated] = useState(null)
-    const [authUrl, setAuthUrl] = useState('')
     const [detectedDocs, setDetectedDocs] = useState(0)
     const [excelDocs, setExcelDocs] = useState(0)
     const [fileDetails, setFileDetails] = useState({})
-    const [senders, setSenders] = useState([]) // State for sender list
-    const location = useLocation()
+    const [senders, setSenders] = useState([])
     const [downloadUrl, setDownloadUrl] = useState('')
-    const [uploadToDrive, setUploadToDrive] = useState(null) // Toggle state
+    const [uploadToDrive, setUploadToDrive] = useState(false)
 
     useEffect(() => {
-        const checkAuthStatus = async () => {
-            try {
-                const searchParams = new URLSearchParams(location.search)
-                const authSuccess = searchParams.get('authSuccess')
-
-                if (authSuccess) {
-                    setIsAuthenticated(true)
-                } else {
-                    const response = await checkGoogleAuth()
-                    if (response.authenticated) {
-                        setIsAuthenticated(true)
-                    } else {
-                        setIsAuthenticated(false)
-                        setAuthUrl(response.authUrl)
-                    }
-                }
-            } catch (error) {
-                setStatus('Error checking Google authentication: ' + error.message)
-            }
-        }
-
-        checkAuthStatus()
-
-        // Fetch senders list on component mount
         const fetchSenders = async () => {
             try {
                 const response = await getSenders()
@@ -54,7 +27,7 @@ const FetchAndUpload = () => {
         }
 
         fetchSenders()
-    }, [location])
+    }, [])
 
     const validateForm = () => {
         const newErrors = {}
@@ -116,19 +89,6 @@ const FetchAndUpload = () => {
         } finally {
             setIsLoading(false)
         }
-    }
-
-    if (isAuthenticated === null) {
-        return <p>Checking Google authentication...</p>
-    }
-
-    if (isAuthenticated === false) {
-        return (
-            <div>
-                <h2>You need to authenticate with Google to upload files.</h2>
-                <a href={authUrl}>Authenticate with Google</a>
-            </div>
-        )
     }
 
     return (
@@ -208,10 +168,9 @@ const FetchAndUpload = () => {
             )}
 
             {/* Conditionally render download button only if there are no errors */}
-            {downloadUrl && Object.keys(errors).length === 0 && (
-                <div>
-                    <h3>Download Zip Archive</h3>
-                    <a href={`${baseURL}/${downloadUrl}`} download>
+            {downloadUrl && (
+                <div className="download-button-container">
+                    <a href={`${baseURL}/${downloadUrl}`} className="button download-button">
                         Click here to download
                     </a>
                 </div>

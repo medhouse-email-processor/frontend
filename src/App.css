@@ -89,7 +89,6 @@ select:focus {
 
 /* Button Styles */
 button {
-    width: 100%;
     background-color: #28a745;
     color: white;
     border: none;
@@ -130,7 +129,6 @@ button:active {
     font-size: 16px;
     padding: 10px;
     border-radius: 4px;
-    width: 100%;
     text-align: center;
 }
 
@@ -167,7 +165,6 @@ h1 {
     padding: 10px;
     border-radius: 4px;
     background-color: #fff;
-    width: 100%;
     /* Ensure it takes full width */
     margin-top: 15px;
 }
