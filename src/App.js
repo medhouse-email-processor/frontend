@@ -28,26 +28,26 @@ function AppContent() {
 
   if (isAuthenticated === false) {
     return (
-      <div>
+      <div className='unauthenticated'>
         <h2>You need to authenticate with Google to upload files.</h2>
-        <a href={authUrl}>Authenticate with Google</a>
+        <a className='auth-link' href={authUrl}>Authenticate with Google</a>
       </div>
     )
   }
 
   // If authenticated, render the main app routes
   return (
-    <div className="App">
+    <div className='App'>
       <nav>
         <ul>
-          <li><Link to="/">Fetch Files</Link></li>
-          <li><Link to="/createsender">Create Sender</Link></li>
+          <li><Link to='/'>Fetch Files</Link></li>
+          <li><Link to='/createsender'>Create Sender</Link></li>
           <li><Link onClick={signOut}>Sign Out</Link></li> {/* Sign Out Button */}
         </ul>
       </nav>
       <Routes>
-        <Route path="/" element={<FetchAndUpload />} />
-        <Route path="/createsender" element={<CreateSender />} />
+        <Route path='/' element={<FetchAndUpload />} />
+        <Route path='/createsender' element={<CreateSender />} />
       </Routes>
     </div>
   )
