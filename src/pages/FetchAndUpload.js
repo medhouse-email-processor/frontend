@@ -17,6 +17,7 @@ const FetchAndUpload = () => {
     const [senders, setSenders] = useState([]) // State for sender list
     const location = useLocation()
     const [downloadUrl, setDownloadUrl] = useState('')
+    const [uploadToDrive, setUploadToDrive] = useState(null) // Toggle state
 
     useEffect(() => {
         const checkAuthStatus = async () => {
@@ -63,7 +64,7 @@ const FetchAndUpload = () => {
         if (!date) {
             newErrors.date = 'Please select a valid date.'
         }
-        if (!folderId) {
+        if (uploadToDrive && !folderId) {
             newErrors.folderId = 'Google Drive Folder ID is required.'
         }
         setErrors(newErrors)
@@ -82,7 +83,7 @@ const FetchAndUpload = () => {
         setFileDetails({})
 
         try {
-            const fetchResponse = await fetchEmails(Number(senderId), date, true)
+            const fetchResponse = await fetchEmails(Number(senderId), date, uploadToDrive)
             console.log(fetchResponse)
 
             if (fetchResponse.success) {
@@ -101,8 +102,12 @@ const FetchAndUpload = () => {
                 setFileDetails(filesByFolder)
                 setStatus('Files fetched. Uploading files...')
 
-                const uploadResponse = await uploadFiles(mainFolderName, folderId)
-                setStatus(uploadResponse.success ? 'Files uploaded successfully!' : uploadResponse.message)
+                if (uploadToDrive) {
+                    const uploadResponse = await uploadFiles(mainFolderName, folderId)
+                    setStatus(uploadResponse.success ? 'Files uploaded successfully!' : uploadResponse.message)
+                } else {
+                    setStatus('Files fetched but not uploaded to Google Drive.')
+                }
             } else {
                 setStatus(`Error fetching files: ${fetchResponse.message}`)
             }
@@ -132,10 +137,7 @@ const FetchAndUpload = () => {
             <form onSubmit={handleFetchAndUpload}>
                 <div>
                     <label>Sender:</label>
-                    <select
-                        value={senderId}
-                        onChange={(e) => setSenderId(e.target.value)}
-                    >
+                    <select value={senderId} onChange={(e) => setSenderId(e.target.value)}>
                         <option value="">Select a sender</option>
                         {senders.map((sender) => (
                             <option key={sender.id} value={sender.id}>
@@ -154,15 +156,28 @@ const FetchAndUpload = () => {
                     />
                     {errors.date && <p className="error">{errors.date}</p>}
                 </div>
-                <div>
-                    <label>Google Drive Folder ID:</label>
-                    <input
-                        type="text"
-                        value={folderId}
-                        onChange={(e) => setFolderId(e.target.value)}
-                    />
-                    {errors.folderId && <p className="error">{errors.folderId}</p>}
+                <div className="toggle-container">
+                    <label className="switch">
+                        <input
+                            type="checkbox"
+                            checked={uploadToDrive}
+                            onChange={() => setUploadToDrive(!uploadToDrive)}
+                        />
+                        <span className="slider"></span>
+                    </label>
+                    <span>Upload to Google Drive</span>
                 </div>
+                {uploadToDrive && (
+                    <div>
+                        <label>Google Drive Folder ID:</label>
+                        <input
+                            type="text"
+                            value={folderId}
+                            onChange={(e) => setFolderId(e.target.value)}
+                        />
+                        {errors.folderId && <p className="error">{errors.folderId}</p>}
+                    </div>
+                )}
                 <button type="submit" className="button" disabled={isLoading}>
                     {isLoading ? 'Processing...' : 'Fetch and Upload'}
                 </button>
@@ -177,7 +192,6 @@ const FetchAndUpload = () => {
                     <p>Total Emails: {detectedDocs}</p>
                     <p>Total Excel Documents: {excelDocs}</p>
 
-                    {/* Wrap the files section with a scrollable div */}
                     <div className="file-list">
                         {Object.entries(fileDetails).map(([folder, files]) => (
                             <div key={folder}>
@@ -192,7 +206,7 @@ const FetchAndUpload = () => {
                     </div>
                 </div>
             )}
-            
+
             {/* Conditionally render download button only if there are no errors */}
             {downloadUrl && Object.keys(errors).length === 0 && (
                 <div>

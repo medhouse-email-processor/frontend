@@ -1,15 +1,15 @@
 import axios from 'axios'
 
-export const baseURL = 'https://beta.gamma-med.kz'
-// export const baseURL = 'http://127.0.0.1:5000'
+// export const baseURL = 'https://beta.gamma-med.kz'
+export const baseURL = 'http://127.0.0.1:5000'
 const API_URL = baseURL + '/api'
 
-export const fetchEmails = async (senderId, day, download) => {
+export const fetchEmails = async (senderId, day, saveFolder) => {
     try {
         const response = await axios.post(`${API_URL}/email/fetch`, {
             senderId,
             day,
-            download
+            saveFolder
         })
         return response.data // axios returns the data directly in `response.data`
     } catch (error) {
