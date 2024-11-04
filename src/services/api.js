@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// export const baseURL = 'https://beta.gamma-med.kz'
-export const baseURL = 'http://127.0.0.1:5000'
+export const baseURL = 'https://beta.gamma-med.kz'
+// export const baseURL = 'http://127.0.0.1:5000'
 const API_URL = baseURL + '/api'
 
 export const fetchEmails = async (senderId, day, saveFolder) => {
@@ -76,6 +76,21 @@ export const getAuthUrl = async () => {
 export const getSenders = async () => {
     try {
         const response = await axios.get(`${API_URL}/email/senders`)
+        return response.data
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || error.message }
+    }
+}
+
+// Add this to services/api.js
+export const getFolderId = async () => {
+    try {
+        const accessToken = sessionStorage.getItem('accessToken')
+        const response = await axios.get(`${API_URL}/drive/folder-id`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        })
         return response.data
     } catch (error) {
         return { success: false, message: error.response?.data?.message || error.message }

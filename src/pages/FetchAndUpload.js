@@ -1,6 +1,6 @@
 // src/pages/FetchAndUpload.js
 import React, { useState, useEffect } from 'react'
-import { fetchEmails, uploadFiles, baseURL, getSenders } from '../services/api'
+import { fetchEmails, uploadFiles, baseURL, getSenders, getFolderId } from '../services/api'
 
 const FetchAndUpload = () => {
     const [senderId, setSenderId] = useState('')
@@ -26,7 +26,19 @@ const FetchAndUpload = () => {
             }
         }
 
+        const fetchFolderId = async () => {
+            try {
+                const response = await getFolderId()
+                if (response.success && response.folderId) {
+                    setFolderId(response.folderId)
+                }
+            } catch (error) {
+                console.error('Error fetching folder ID:', error)
+            }
+        }
+
         fetchSenders()
+        fetchFolderId() // Load folderId on component mount
     }, [])
 
     const validateForm = () => {
