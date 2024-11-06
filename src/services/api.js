@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-export const baseURL = 'https://beta.gamma-med.kz'
-// export const baseURL = 'http://127.0.0.1:5000'
+// export const baseURL = 'https://beta.gamma-med.kz'
+export const baseURL = 'http://127.0.0.1:5000'
 const API_URL = baseURL + '/api'
 
 export const fetchEmails = async (senderId, day, saveFolder) => {
@@ -86,13 +86,31 @@ export const getSenders = async () => {
 export const getFolderId = async () => {
     try {
         const accessToken = sessionStorage.getItem('accessToken')
-        const response = await axios.get(`${API_URL}/drive/folder-id`, {
+        const response = await axios.get(`${API_URL}/folder-id`, {
             headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
+                Authorization: `Bearer ${accessToken}`
+            }
         })
         return response.data
     } catch (error) {
         return { success: false, message: error.response?.data?.message || error.message }
     }
+}
+
+export const listenForStatusUpdates = (onStatusUpdate, onProgressUpdate) => {
+    const accessToken = sessionStorage.getItem('accessToken')
+    const eventSource = new EventSource(`${API_URL}/fetch-progress/${accessToken}`)
+
+    eventSource.onmessage = event => {
+        const data = JSON.parse(event.data)
+        onStatusUpdate(data.status)
+        onProgressUpdate(data.progress)
+        console.log(data)
+    }
+
+    eventSource.onerror = () => {
+        eventSource.close()
+    }
+
+    return eventSource
 }

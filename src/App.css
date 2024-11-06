@@ -253,3 +253,24 @@ input:checked+.slider:before {
 .auth-link:hover {
     background-color: #0056b3;
 }
+
+/* Progress Bar Styles */
+.progress {
+    margin-top: 20px;
+    width: 100%;
+    height: 20px; /* Increase height for better visibility */
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #e0e0e0;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+progress[value]::-webkit-progress-bar {
+    background-color: #e0e0e0; /* Background of the progress bar */
+}
+
+progress[value]::-webkit-progress-value {
+    background-image: linear-gradient(to right, #28a745, #66ff99);
+    border-radius: 10px;
+    transition: width 0.4s ease; /* Smooth animation */
+}

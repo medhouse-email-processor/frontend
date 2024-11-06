@@ -1,12 +1,13 @@
 // src/pages/FetchAndUpload.js
 import React, { useState, useEffect } from 'react'
-import { fetchEmails, uploadFiles, baseURL, getSenders, getFolderId } from '../services/api'
+import { fetchEmails, uploadFiles, baseURL, getSenders, getFolderId, listenForStatusUpdates } from '../services/api'
 
 const FetchAndUpload = () => {
     const [senderId, setSenderId] = useState('')
     const [date, setDate] = useState('')
     const [folderId, setFolderId] = useState('')
     const [status, setStatus] = useState('')
+    const [progress, setProgress] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState({})
     const [detectedDocs, setDetectedDocs] = useState(0)
@@ -67,6 +68,9 @@ const FetchAndUpload = () => {
         setExcelDocs(0)
         setFileDetails({})
 
+        // Listen for progress updates from the server
+        const statusListener = listenForStatusUpdates(setStatus, setProgress)
+
         try {
             const fetchResponse = await fetchEmails(Number(senderId), date, uploadToDrive)
             console.log(fetchResponse)
@@ -100,6 +104,7 @@ const FetchAndUpload = () => {
             setStatus(`An error occurred: ${error.message}`)
         } finally {
             setIsLoading(false)
+            statusListener.close() // Stop listening when the process completes
         }
     }
 
@@ -155,6 +160,8 @@ const FetchAndUpload = () => {
                 </button>
             </form>
 
+            <progress className="progress" value={progress} max="100">70 %</progress>
+
             {status && <p className={isLoading ? 'loading' : 'status'}>{status}</p>}
 
             {/* Display details of fetched files */}
@@ -179,7 +186,6 @@ const FetchAndUpload = () => {
                 </div>
             )}
 
-            {/* Conditionally render download button only if there are no errors */}
             {downloadUrl && (
                 <div className="download-button-container">
                     <a href={`${baseURL}/${downloadUrl}`} className="button download-button">
