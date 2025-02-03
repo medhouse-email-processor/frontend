@@ -15,25 +15,25 @@ const CreateSender = () => {
         const newErrors = {}
 
         if (!companyName) {
-            newErrors.companyName = 'Company name is required.'
+            newErrors.companyName = 'Требуется наименование отправителя.'
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!email || !emailRegex.test(email)) {
-            newErrors.email = 'Please enter a valid email address.'
+            newErrors.email = 'Пожалуйста, введите рабочую электронную почту.'
         }
 
         if (!cities) {
-            newErrors.cities = 'Please enter at least one city.'
+            newErrors.cities = 'Пожалуйста, введите не менее одного города.'
         }
 
         const cellRegex = /^[A-Z]+\d+$/
         if (!cellCoordinates || !cellRegex.test(cellCoordinates)) {
-            newErrors.cellCoordinates = 'Cell coordinates must be like A1, B2, etc.'
+            newErrors.cellCoordinates = 'Координаты ячеек должны быть по образу A1, B2 и т.д.'
         }
 
         if (!password || password.length < 8) {
-            newErrors.password = 'Password must be at least 8 characters long.'
+            newErrors.password = 'Пароль должен состоять как минимум из 8 символов.'
         }
 
         setErrors(newErrors)
@@ -48,7 +48,7 @@ const CreateSender = () => {
         }
 
         setIsLoading(true)
-        setStatus('Creating sender...')
+        setStatus('Добавляем отправителя...')
 
         try {
             const cityArray = cities.split(',').map(city => city.trim())
@@ -63,12 +63,12 @@ const CreateSender = () => {
             const createResponse = await createSender(requestBody)
 
             if (createResponse.success) {
-                setStatus('Sender created successfully!')
+                setStatus('Отправитель успешно добавлен!')
             } else {
-                setStatus('Error creating sender: ' + createResponse.message)
+                setStatus('Ошибка при добавлении отправителя: ' + createResponse.message)
             }
         } catch (error) {
-            setStatus('An error occurred: ' + error.message)
+            setStatus('Произошла ошибка: ' + error.message)
         } finally {
             setIsLoading(false)
         }
@@ -76,10 +76,10 @@ const CreateSender = () => {
 
     return (
         <div className="container">
-            <h1>Create Sender</h1>
+            <h1>Добавить отправителя</h1>
             <form onSubmit={handleCreateSender}>
                 <div>
-                    <label>Company Name:</label>
+                    <label>Наименование:</label>
                     <input
                         type="text"
                         value={companyName}
@@ -88,7 +88,7 @@ const CreateSender = () => {
                     {errors.companyName && <p className="error">{errors.companyName}</p>}
                 </div>
                 <div>
-                    <label>Email:</label>
+                    <label>Электронная почта:</label>
                     <input
                         type="email"
                         value={email}
@@ -97,7 +97,7 @@ const CreateSender = () => {
                     {errors.email && <p className="error">{errors.email}</p>}
                 </div>
                 <div>
-                    <label>Cities (comma separated):</label>
+                    <label>Города (перечисленные через запятую):</label>
                     <input
                         type="text"
                         value={cities}
@@ -106,7 +106,7 @@ const CreateSender = () => {
                     {errors.cities && <p className="error">{errors.cities}</p>}
                 </div>
                 <div>
-                    <label>Cell Coordinates:</label>
+                    <label>Координаты ячеек:</label>
                     <input
                         type="text"
                         value={cellCoordinates}
@@ -115,7 +115,7 @@ const CreateSender = () => {
                     {errors.cellCoordinates && <p className="error">{errors.cellCoordinates}</p>}
                 </div>
                 <div>
-                    <label>Password:</label>
+                    <label>Пароль:</label>
                     <input
                         type="password"
                         value={password}
@@ -125,7 +125,7 @@ const CreateSender = () => {
                     {errors.password && <p className="error">{errors.password}</p>}
                 </div>
                 <button type="submit" className="button" disabled={isLoading}>
-                    {isLoading ? 'Creating...' : 'Create Sender'}
+                    {isLoading ? 'Добавляем...' : 'Добавить отправителя'}
                 </button>
             </form>
             {status && <p className={isLoading ? 'loading' : 'status'}>{status}</p>}

@@ -23,7 +23,7 @@ const FetchAndUpload = () => {
                 const response = await getSenders()
                 setSenders(response)
             } catch (error) {
-                console.error('Error fetching senders:', error)
+                console.error('Ошибка при извлечении отправителей:', error)
             }
         }
 
@@ -34,7 +34,7 @@ const FetchAndUpload = () => {
                     setFolderId(response.folderId)
                 }
             } catch (error) {
-                console.error('Error fetching folder ID:', error)
+                console.error('Ошибка при извлечении ID папки Google Drive:', error)
             }
         }
 
@@ -45,13 +45,13 @@ const FetchAndUpload = () => {
     const validateForm = () => {
         const newErrors = {}
         if (!senderId) {
-            newErrors.senderId = 'Please select a valid sender.'
+            newErrors.senderId = 'Пожалуйста, выберите существующего отправителя.'
         }
         if (!date) {
-            newErrors.date = 'Please select a valid date.'
+            newErrors.date = 'Пожалуйста, введите правильную дату.'
         }
         if (uploadToDrive && !folderId) {
-            newErrors.folderId = 'Google Drive Folder ID is required.'
+            newErrors.folderId = 'Требуется ID или ссылка на папку Google Drive.'
         }
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
@@ -89,20 +89,20 @@ const FetchAndUpload = () => {
                 }, {})
 
                 setFileDetails(filesByFolder)
-                setStatus('Files fetched. Uploading files...')
+                setStatus('Файлы извлечены. Выгружаем...')
 
                 if (uploadToDrive) {
                     const uploadResponse = await uploadFiles(mainFolderName, folderId)
-                    setStatus(uploadResponse.success ? 'Files uploaded successfully!' : uploadResponse.message)
+                    setStatus(uploadResponse.success ? 'Файлы успешно выгружены!' : uploadResponse.message)
                     setProgress(100)
                 } else {
-                    setStatus('Files fetched but not uploaded to Google Drive.')
+                    setStatus('Файлы извлечены, но не выгружены в Google Drive.')
                 }
             } else {
-                setStatus(`Error fetching files: ${fetchResponse.message}`)
+                setStatus(`Ошибка при извлечении файлов: ${fetchResponse.message}`)
             }
         } catch (error) {
-            setStatus(`An error occurred: ${error.message}`)
+            setStatus(`Произошла ошибка: ${error.message}`)
         } finally {
             setIsLoading(false)
             statusListener.close() // Stop listening when the process completes
@@ -111,12 +111,12 @@ const FetchAndUpload = () => {
 
     return (
         <div className="container">
-            <h1>Fetch and Upload Files</h1>
+            <h1>Извлечь и выгрузить файлы</h1>
             <form onSubmit={handleFetchAndUpload}>
                 <div>
-                    <label>Sender:</label>
+                    <label>Отправитель:</label>
                     <select value={senderId} onChange={(e) => setSenderId(e.target.value)}>
-                        <option value="">Select a sender</option>
+                        <option value="">Выберите отправителя</option>
                         {senders.map((sender) => (
                             <option key={sender.id} value={sender.id}>
                                 {sender.companyName} ({sender.email})
@@ -126,7 +126,7 @@ const FetchAndUpload = () => {
                     {errors.senderId && <p className="error">{errors.senderId}</p>}
                 </div>
                 <div>
-                    <label>Date:</label>
+                    <label>Дата отправления заказов:</label>
                     <input
                         type="date"
                         value={date}
@@ -143,7 +143,7 @@ const FetchAndUpload = () => {
                         />
                         <span className="slider"></span>
                     </label>
-                    <span>Upload to Google Drive</span>
+                    <span>Выгрузить файлы в Google Drive</span>
                 </div>
                 {uploadToDrive && (
                     <div>
@@ -157,7 +157,11 @@ const FetchAndUpload = () => {
                     </div>
                 )}
                 <button type="submit" className="button" disabled={isLoading}>
-                    {isLoading ? 'Processing...' : 'Fetch and Upload'}
+                    {isLoading
+                        ? 'Обрабатываем...'
+                        : uploadToDrive
+                            ? 'Извлечь и выгрузить'
+                            : 'Извлечь'}
                 </button>
             </form>
 
@@ -168,9 +172,9 @@ const FetchAndUpload = () => {
             {/* Display details of fetched files */}
             {detectedDocs > 0 && (
                 <div>
-                    <h3>Detected Files</h3>
-                    <p>Total Emails: {detectedDocs}</p>
-                    <p>Total Excel Documents: {excelDocs}</p>
+                    <h3>Обнаруженные файлы</h3>
+                    <p>Всего сообщений: {detectedDocs}</p>
+                    <p>Всего Excel документов: {excelDocs}</p>
 
                     <div className="file-list">
                         {Object.entries(fileDetails).map(([folder, files]) => (
@@ -190,7 +194,7 @@ const FetchAndUpload = () => {
             {downloadUrl && (
                 <div className="download-button-container">
                     <a href={`${baseURL}/${downloadUrl}`} className="button download-button">
-                        Click here to download
+                        Нажмите, чтобы скачать
                     </a>
                 </div>
             )}

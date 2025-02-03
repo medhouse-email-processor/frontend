@@ -23,14 +23,14 @@ function AppContent() {
   }, [checkAuthStatus])
 
   if (isAuthenticated === null) {
-    return <p>Checking Google authentication...</p>
+    return <p>Проверяем Goodle аутентификацию...</p>
   }
 
   if (isAuthenticated === false) {
     return (
       <div className='unauthenticated'>
-        <h2>You need to authenticate with Google to upload files.</h2>
-        <a className='auth-link' href={authUrl}>Authenticate with Google</a>
+        <h2>Вы должны войти с помощью вашего Google аккаунта.</h2>
+        <a className='auth-link' href={authUrl}>Авторизоваться через Google</a>
       </div>
     )
   }
@@ -40,9 +40,9 @@ function AppContent() {
     <div className='App'>
       <nav>
         <ul>
-          <li><Link to='/'>Fetch Files</Link></li>
-          <li><Link to='/createsender'>Create Sender</Link></li>
-          <li><Link onClick={signOut}>Sign Out</Link></li> {/* Sign Out Button */}
+          <li><Link to='/'>Извлечь файлы</Link></li>
+          <li><Link to='/createsender'>Добавить отправителя</Link></li>
+          <li><Link onClick={signOut}>Выйти</Link></li> {/* Sign Out Button */}
         </ul>
       </nav>
       <Routes>
