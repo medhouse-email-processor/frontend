@@ -25,11 +25,21 @@ const CreateSender = () => {
 
         if (!cities) {
             newErrors.cities = 'Пожалуйста, введите не менее одного города.'
+        } else {
+            const cityList = cities.split(',').map(city => city.trim()).filter(city => city.length > 0) // Trim & remove empty entries
+            if (cityList.length === 0) {
+                newErrors.cities = 'Введите хотя бы один город.'
+            }
         }
 
-        const cellRegex = /^[A-Z]+\d+$/
-        if (!cellCoordinates || !cellRegex.test(cellCoordinates)) {
+        const cellRegex = /^[A-Z]+\d+$/ // Pattern for "A1", "B2", etc.
+        if (!cellCoordinates) {
             newErrors.cellCoordinates = 'Координаты ячеек должны быть по образу A1, B2 и т.д.'
+        } else {
+            const cells = cellCoordinates.split(',').map(cell => cell.trim()) // Split and trim spaces
+            if (cells.some(cell => !cellRegex.test(cell))) { // Check if any cell is invalid
+                newErrors.cellCoordinates = 'Некоторые координаты неверны. Используйте формат A1, B2 и т.д.'
+            }
         }
 
         if (!password || password.length < 8) {
@@ -52,13 +62,17 @@ const CreateSender = () => {
 
         try {
             const cityArray = cities.split(',').map(city => city.trim())
+            const cellsArray = cellCoordinates.split(',').map(cell => cell.trim())
+
             const requestBody = {
                 companyName,
                 email,
                 cities: cityArray,
-                cellCoordinates,
+                cellCoordinates: cellsArray,
                 password // Including password in the request
             }
+
+            console.log(requestBody)
 
             const createResponse = await createSender(requestBody)
 
@@ -106,7 +120,7 @@ const CreateSender = () => {
                     {errors.cities && <p className="error">{errors.cities}</p>}
                 </div>
                 <div>
-                    <label>Координаты ячеек:</label>
+                    <label>Координаты ячеек (перечисленные через запятую):</label>
                     <input
                         type="text"
                         value={cellCoordinates}
