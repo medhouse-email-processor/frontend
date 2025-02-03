@@ -1,7 +1,8 @@
 import axios from 'axios'
 
-export const baseURL = 'https://beta.gamma-med.kz'
-// export const baseURL = 'http://127.0.0.1:5000'
+// export const baseURL = 'https://server.emailer.daichin.kz'
+// export const baseURL = 'http://localhost:5001'
+export const baseURL = ''
 const API_URL = baseURL + '/api'
 
 export const fetchEmails = async (senderId, day, saveFolder) => {

@@ -94,6 +94,7 @@ const FetchAndUpload = () => {
                 if (uploadToDrive) {
                     const uploadResponse = await uploadFiles(mainFolderName, folderId)
                     setStatus(uploadResponse.success ? 'Files uploaded successfully!' : uploadResponse.message)
+                    setProgress(100)
                 } else {
                     setStatus('Files fetched but not uploaded to Google Drive.')
                 }
@@ -146,7 +147,7 @@ const FetchAndUpload = () => {
                 </div>
                 {uploadToDrive && (
                     <div>
-                        <label>Google Drive Folder ID:</label>
+                        <label>Google Drive Folder URL or ID:</label>
                         <input
                             type="text"
                             value={folderId}
