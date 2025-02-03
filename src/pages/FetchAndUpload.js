@@ -10,7 +10,7 @@ const FetchAndUpload = () => {
     const [progress, setProgress] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState({})
-    const [detectedDocs, setDetectedDocs] = useState(0)
+    const [detectedMessages, setDetectedMessages] = useState(0)
     const [excelDocs, setExcelDocs] = useState(0)
     const [fileDetails, setFileDetails] = useState({})
     const [senders, setSenders] = useState([])
@@ -64,7 +64,7 @@ const FetchAndUpload = () => {
 
         setIsLoading(true)
         setStatus('Fetching files...')
-        setDetectedDocs(0)
+        setDetectedMessages(0)
         setExcelDocs(0)
         setFileDetails({})
 
@@ -76,8 +76,8 @@ const FetchAndUpload = () => {
             console.log(fetchResponse)
 
             if (fetchResponse.success) {
-                const { mainFolderName, fetchedFiles, downloadUrl } = fetchResponse
-                setDetectedDocs(fetchResponse.messages.length)
+                const { mainFolderName, fetchedFiles, downloadUrl, messagesNum } = fetchResponse
+                setDetectedMessages(messagesNum)
                 setExcelDocs(fetchedFiles.length)
                 setDownloadUrl(downloadUrl || '')
 
@@ -170,10 +170,10 @@ const FetchAndUpload = () => {
             {status && <p className={isLoading ? 'loading' : 'status'}>{status}</p>}
 
             {/* Display details of fetched files */}
-            {detectedDocs > 0 && (
+            {detectedMessages > 0 && (
                 <div>
                     <h3>Обнаруженные файлы</h3>
-                    <p>Всего сообщений: {detectedDocs}</p>
+                    <p>Всего сообщений: {detectedMessages}</p>
                     <p>Всего Excel документов: {excelDocs}</p>
 
                     <div className="file-list">
