@@ -63,7 +63,7 @@ const FetchAndUpload = () => {
         if (!validateForm()) return
 
         setIsLoading(true)
-        setStatus('Fetching files...')
+        setStatus('Начинаем извлечение...')
         setDetectedMessages(0)
         setExcelDocs(0)
         setFileDetails({})
@@ -100,6 +100,7 @@ const FetchAndUpload = () => {
                 }
             } else {
                 setStatus(`Ошибка при извлечении файлов: ${fetchResponse.message}`)
+                console.error(fetchResponse.err)
             }
         } catch (error) {
             setStatus(`Произошла ошибка: ${error.message}`)

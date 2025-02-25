@@ -1,14 +1,18 @@
 import axios from 'axios'
 
-// export const baseURL = 'https://server.emailer.daichin.kz'
-// export const baseURL = 'http://localhost:5001'
 export const baseURL = ''
 const API_URL = baseURL + '/api'
+
+// Toggle logging by commenting/uncommenting the appropriate line
+const enableLogging = false // Set to false to disable logging globally
+
+// Function to append `logs=true` only if logging is enabled
+const withLogs = (url) => enableLogging ? `${url}${url.includes('?') ? '&' : '?'}logs=true` : url
 
 export const fetchEmails = async (senderId, day, saveFolder) => {
     try {
         const accessToken = sessionStorage.getItem('accessToken')
-        const response = await axios.post(`${API_URL}/email/fetch`, {
+        const response = await axios.post(withLogs(`${API_URL}/email/fetch`), {
             senderId,
             day,
             saveFolder
@@ -17,7 +21,7 @@ export const fetchEmails = async (senderId, day, saveFolder) => {
                 Authorization: `Bearer ${accessToken}`
             }
         })
-        return response.data // axios returns the data directly in `response.data`
+        return response.data
     } catch (error) {
         return { success: false, message: error.response?.data?.message || error.message }
     }
@@ -26,7 +30,7 @@ export const fetchEmails = async (senderId, day, saveFolder) => {
 export const uploadFiles = async (mainFolderName, folderId) => {
     try {
         const accessToken = sessionStorage.getItem('accessToken')
-        const response = await axios.post(`${API_URL}/drive/upload`, {
+        const response = await axios.post(withLogs(`${API_URL}/drive/upload`), {
             mainFolderName,
             folderId,
         }, {
@@ -42,7 +46,7 @@ export const uploadFiles = async (mainFolderName, folderId) => {
 
 export const createSender = async (data) => {
     try {
-        const response = await axios.post(`${API_URL}/admin/sender/create`, data)
+        const response = await axios.post(withLogs(`${API_URL}/admin/sender/create`), data)
         return { success: true, message: 'Sender created successfully', data: response.data }
     } catch (error) {
         return { success: false, message: error.response?.data?.message || error.message }
@@ -52,7 +56,7 @@ export const createSender = async (data) => {
 export const checkGoogleAuth = async () => {
     try {
         const accessToken = sessionStorage.getItem('accessToken')
-        const response = await axios.get(`${API_URL}/drive/auth/check`, {
+        const response = await axios.get(withLogs(`${API_URL}/drive/auth/check`), {
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }
@@ -66,28 +70,26 @@ export const checkGoogleAuth = async () => {
 
 export const getAuthUrl = async () => {
     try {
-        const response = await axios.get(`${API_URL}/drive/auth`)
+        const response = await axios.get(withLogs(`${API_URL}/drive/auth`))
         return response.data
     } catch (error) {
         return { success: false, message: error.response?.data?.message || error.message }
     }
 }
-
 
 export const getSenders = async () => {
     try {
-        const response = await axios.get(`${API_URL}/email/senders`)
+        const response = await axios.get(withLogs(`${API_URL}/email/senders`))
         return response.data
     } catch (error) {
         return { success: false, message: error.response?.data?.message || error.message }
     }
 }
 
-// Add this to services/api.js
 export const getFolderId = async () => {
     try {
         const accessToken = sessionStorage.getItem('accessToken')
-        const response = await axios.get(`${API_URL}/drive/folder-id`, {
+        const response = await axios.get(withLogs(`${API_URL}/drive/folder-id`), {
             headers: {
                 Authorization: `Bearer ${accessToken}`
             }
@@ -100,7 +102,7 @@ export const getFolderId = async () => {
 
 export const listenForStatusUpdates = (onStatusUpdate, onProgressUpdate) => {
     const accessToken = sessionStorage.getItem('accessToken')
-    const eventSource = new EventSource(`${API_URL}/fetch-progress/${accessToken}`)
+    const eventSource = new EventSource(withLogs(`${API_URL}/fetch-progress/${accessToken}`))
 
     eventSource.onmessage = event => {
         const data = JSON.parse(event.data)
