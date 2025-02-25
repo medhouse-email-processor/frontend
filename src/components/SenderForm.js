@@ -11,26 +11,52 @@ const SenderForm = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState({})
 
-    // Валидация формы
+    const parseCities = (input) => {
+        const cityDict = {}
+        const regex = /([^,\[\]]+)\s*\[([^\]]+)\]/g
+        let match
+    
+        // Process main cities with sub-cities
+        while ((match = regex.exec(input)) !== null) {
+            const mainCity = match[1].trim()
+            const subCities = match[2].split(',').map(city => city.trim())
+    
+            // Merge sub-cities into existing entries if the main city already exists
+            if (cityDict[mainCity]) {
+                cityDict[mainCity] = [...new Set([...cityDict[mainCity], ...subCities])]
+            } else {
+                cityDict[mainCity] = [mainCity, ...subCities]
+            }
+        }
+    
+        // Process standalone cities
+        input
+            .replace(/\[.*?\]/g, '') // Remove any remaining brackets
+            .split(',')
+            .map(city => city.trim())
+            .forEach(city => {
+                if (city && !Object.keys(cityDict).some(mainCity => cityDict[mainCity].includes(city))) {
+                    cityDict[city] = [city]
+                }
+            })
+    
+        return JSON.stringify(cityDict)
+    }    
+
     const validateForm = () => {
         const newErrors = {}
 
         if (!companyName) newErrors.companyName = 'Требуется наименование отправителя.'
 
-        // Проверяем email или домен
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         const domainRegex = /^@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
         if (!email || (!emailRegex.test(email) && !domainRegex.test(email))) {
             newErrors.email = 'Введите корректный email (user@example.com) или домен (@example.com).'
         }
 
-        if (!cities) newErrors.cities = 'Пожалуйста, введите не менее одного города.'
-        else {
-            const cityList = cities.split(',').map(city => city.trim()).filter(city => city.length > 0)
-            if (cityList.length === 0) newErrors.cities = 'Введите хотя бы один город.'
-        }
-
-        const cellRegex = /^[A-Z]+\d+$/ // Пример: A1, B2, C3
+        if (!cities) newErrors.cities = 'Введите города в формате "Город [Подгород1, Подгород2]"'
+        
+        const cellRegex = /^[A-Z]+\d+$/
         if (!cellCoordinates) newErrors.cellCoordinates = 'Введите координаты ячеек (A1, B2 и т.д.).'
         else {
             const cells = cellCoordinates.split(',').map(cell => cell.trim())
@@ -56,7 +82,7 @@ const SenderForm = () => {
             const requestBody = {
                 companyName,
                 email,
-                cities: cities.split(',').map(city => city.trim()),
+                cities: parseCities(cities),
                 cellCoordinates: cellCoordinates.split(',').map(cell => cell.trim()),
                 password
             }
@@ -85,7 +111,7 @@ const SenderForm = () => {
                 {errors.email && <p className="error">{errors.email}</p>}
             </div>
             <div>
-                <label>Города (через запятую):</label>
+                <label>Города (в формате Город [Подгород1, Подгород2]):</label>
                 <input type="text" value={cities} onChange={(e) => setCities(e.target.value)} />
                 {errors.cities && <p className="error">{errors.cities}</p>}
             </div>

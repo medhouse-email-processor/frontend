@@ -45,6 +45,7 @@ export const uploadFiles = async (mainFolderName, folderId) => {
 }
 
 export const createSender = async (data) => {
+    console.log(data.cities)
     try {
         const response = await axios.post(withLogs(`${API_URL}/admin/sender/create`), data)
         return { success: true, message: 'Sender created successfully', data: response.data }
