@@ -75,7 +75,7 @@ const FetchAndUpload = () => {
             const fetchResponse = await fetchEmails(Number(senderId), date, uploadToDrive)
             console.log(fetchResponse)
 
-            if (fetchResponse.success) {
+            if (fetchResponse.success && fetchResponse.messagesNum > 0) {
                 const { mainFolderName, fetchedFiles, downloadUrl, messagesNum } = fetchResponse
                 setDetectedMessages(messagesNum)
                 setExcelDocs(fetchedFiles.length)
@@ -98,6 +98,11 @@ const FetchAndUpload = () => {
                 } else {
                     setStatus('Файлы извлечены, но не выгружены в Google Drive.')
                 }
+            } else if (fetchResponse.messagesNum === 0) {
+                setStatus(fetchResponse.message || 'Не найдено сообщений.');
+                setDetectedMessages(0);
+                setExcelDocs(0);
+                setFileDetails({});
             } else {
                 setStatus(`Ошибка при извлечении файлов: ${fetchResponse.message}`)
                 console.error(fetchResponse.err)
