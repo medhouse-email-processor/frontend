@@ -7,6 +7,7 @@ const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [authUrl, setAuthUrl] = useState('')
+    const [isAdmin, setIsAdmin] = useState(false)
 
     const checkAuthStatus = async (location) => {
         try {
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }) => {
                     const authStatus = await checkGoogleAuth()
                     if (authStatus.authenticated)
                         setIsAuthenticated(true)
-                    if (!authStatus.authenticated) {
+                    else {
                         setIsAuthenticated(false)
                         const authResponse = await getAuthUrl()
                         setAuthUrl(authResponse.authUrl)
@@ -56,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, authUrl, checkAuthStatus, signOut }}>
+        <AuthContext.Provider value={{ isAuthenticated, isAdmin, authUrl, checkAuthStatus, signOut }}>
             {children}
         </AuthContext.Provider>
     )

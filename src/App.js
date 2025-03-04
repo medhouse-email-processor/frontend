@@ -1,7 +1,7 @@
 // src/App.js
 import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'
-import { FetchAndUpload, CreateSender } from './pages'
+import { FetchAndUpload, CreateSender, EditSenders } from './pages'
 import { AuthProvider, useAuth } from './contexts/AuthProvider'
 import './App.css'
 
@@ -42,12 +42,14 @@ function AppContent() {
         <ul>
           <li><Link to='/'>Извлечь файлы</Link></li>
           <li><Link to='/createsender'>Добавить отправителя</Link></li>
+          <li><Link to='/updatesender'>Редактировать отправителей</Link></li>
           <li><Link onClick={signOut}>Выйти</Link></li> {/* Sign Out Button */}
         </ul>
       </nav>
       <Routes>
         <Route path='/' element={<FetchAndUpload />} />
         <Route path='/createsender' element={<CreateSender />} />
+        <Route path='/updatesender' element={<EditSenders />} />
       </Routes>
     </div>
   )
