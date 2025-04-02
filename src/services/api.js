@@ -53,6 +53,31 @@ export const createSender = async (data) => {
     }
 }
 
+export const updateSender = async (senderId, data) => {
+    try {
+        const accessToken = sessionStorage.getItem('accessToken')
+        const response = await axios.put(
+            withLogs(`${API_URL}/admin/sender/update/${senderId}`),
+            data,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            }
+        )
+        return {
+            success: true,
+            message: 'Sender updated successfully',
+            data: response.data
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error.response?.data?.message || error.message
+        }
+    }
+}
+
 export const checkGoogleAuth = async () => {
     try {
         const accessToken = sessionStorage.getItem('accessToken')

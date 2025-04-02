@@ -1,11 +1,11 @@
 import React from 'react'
-import SenderList from '../components/SenderList'
+import SenderEditForm from '../components/SenderEditForm'
 
 const EditSenders = () => {
     return (
-        <div>
+        <div className="container">
             <h1>Редактирование отправителей</h1>
-            <SenderList />
+            <SenderEditForm />
         </div>
     )
 }

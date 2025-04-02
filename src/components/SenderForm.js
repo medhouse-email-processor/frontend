@@ -4,7 +4,7 @@ import { createSender } from '../services/api'
 const SenderForm = () => {
     const [companyName, setCompanyName] = useState('')
     const [email, setEmail] = useState('')
-    const [cities, setCities] = useState(defaultCities)
+    const [cities, setCities] = useState()
     const [cellCoordinates, setCellCoordinates] = useState('')
     const [daichinCoordinates, setDaichinCoordinates] = useState({ names: '', coordinates: '' })
     const [testmedCoordinates, setTestmedCoordinates] = useState({ names: '', coordinates: '' })
@@ -146,21 +146,25 @@ const SenderForm = () => {
                 <textarea
                     value={cities}
                     onChange={(e) => setCities(e.target.value)}
-                    rows={4}
+                    rows={7}
                 />
                 {errors.cities && <p className="error">{errors.cities}</p>}
             </div>
             <div>
-                <label>Координаты ячеек (через запятую):</label>
-                <input type="text" value={cellCoordinates} onChange={(e) => setCellCoordinates(e.target.value)} />
+                <label>Координаты ячеек:</label>
+                <input
+                    placeholder='Координаты (через запятую)'
+                    type="text" value={cellCoordinates}
+                    onChange={(e) => setCellCoordinates(e.target.value)}
+                />
                 {errors.cellCoordinates && <p className="error">{errors.cellCoordinates}</p>}
             </div>
             <div>
-                <label>Daichin Coordinates:</label>
+                <label>Параметры Дайчин:</label>
                 <div>
                     <input
                         type="text"
-                        placeholder="Имена (через запятую)"
+                        placeholder="Наименования (через запятую)"
                         value={daichinCoordinates.names}
                         onChange={(e) => setDaichinCoordinates({ ...daichinCoordinates, names: e.target.value })}
                     />
@@ -174,11 +178,11 @@ const SenderForm = () => {
                 {errors.daichinCoordinates && <p className="error">{errors.daichinCoordinates}</p>}
             </div>
             <div>
-                <label>Testmed Coordinates:</label>
+                <label>Параметры Тест-Медикал:</label>
                 <div>
                     <input
                         type="text"
-                        placeholder="Имена (через запятую)"
+                        placeholder="Наименования (через запятую)"
                         value={testmedCoordinates.names}
                         onChange={(e) => setTestmedCoordinates({ ...testmedCoordinates, names: e.target.value })}
                     />
@@ -203,7 +207,5 @@ const SenderForm = () => {
         </form>
     )
 }
-
-const defaultCities = 'Актау [Жанаозен, Форт-Шевченко],\nАктобе [Алга, Жем, Кандыагаш, Темир, Хромтау, Шалкар, Эмба],\nАлматы [Алатау, Есик, Жаркент, Каскелен, Конаев, Сарканд, Талгар, Талдыкорган, Текели, Ушарал, Уштобе],\nАстана [Косшы, Нур-Султан],\nАтырау [Кулсары],\nКараганда [Караганды, Балхаш, Байконыр, Жезказган, Каражал, Каркаралинск, Приозёрск, Сарань, Сатпаев, Темиртау, Шахтинск],\nКокшетау [Акколь, Атбасар, Державинск, Ерейментау, Есиль, Макинск, Степногорск, Степняк, Щучинск],\nКостанай [Аркалык, Аулиеколь, Житикара, Затобольск, Лисаковск, Рудный, Тобыл],\nПавлодар [Аксу, Экибастуз],\nПетропавловск [Булаево, Мамлютка, Сергеевка, Тайынша],\nСемей [Абай, Аягоз, Курчатов, Серебрянск, Шемонаиха],\nТараз [Жанатас, Каратау, Шу],\nУральск [Аксай],\nУсть-Каменогорск [Алтай, Зайсан, Риддер, Серебрянск, Шар],\nШымкент [Арал, Арыс, Жетысай, Казалинск, Кентау, Кызылорда, Ленгер, Сарыагаш, Туркестан, Шардара]'
 
 export default SenderForm
